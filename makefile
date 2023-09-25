@@ -21,6 +21,10 @@ setup:
 db-start:
 		docker start ${DB_CONTAINER_NAME}
 
+seed:
+	docker cp seed.sql swiftcloud:/seed.sql
+	docker exec swiftcloud sh -c 'psql -U swiftcloud -d swiftcloud -f /seed.sql > /dev/null'
+
 # Builds the Docker image
 build:
 	docker build -t $(IMAGE_NAME) .

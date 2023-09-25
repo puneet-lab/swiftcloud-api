@@ -3,5 +3,27 @@
 # ------------------------------------------------------
 
 type Query {
+  """Retrieve a list of all songs."""
+  getAllSongs: [SongDto!]!
   getHelloWorld: String!
+}
+
+type SongDto {
+  """Album where the song is included."""
+  album: String!
+
+  """Artist who performed the song."""
+  artist: String!
+
+  """Unique identifier for the song."""
+  id: String!
+
+  """Year the song was released."""
+  releaseYear: Float!
+
+  """Title of the song."""
+  songName: String!
+
+  """Writers who composed the song."""
+  writers: String!
 }
