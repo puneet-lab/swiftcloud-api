@@ -6,8 +6,8 @@ import developmentConfig from './config/development.config';
 import productionConfig from './config/production.config';
 import stagingConfig from './config/staging.config';
 import { PostgresModule } from './database/postgres/postgres.module';
-import { GqlModule } from './gql/gql.module';
-import { SongModule } from './song/song.module';
+import { GqlV1Module } from './gql/gqlV1.module';
+import { V1Module } from './v1/v1.module';
 
 const environment = process.env.NODE_ENV || 'development';
 
@@ -20,13 +20,13 @@ const envConfig = configurations[environment];
 
 @Module({
   imports: [
-    GqlModule,
-    SongModule,
+    GqlV1Module,
     ConfigModule.forRoot({
       load: [envConfig],
       isGlobal: true,
     }),
     PostgresModule,
+    V1Module,
   ],
   controllers: [AppController],
   providers: [AppService],

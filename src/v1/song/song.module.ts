@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Song } from './dto/song.entity';
+import { Song } from '../../shared/song/dto/song.entity';
 import { SongResolver } from './song.resolver';
 import { SongService } from './song.service';
 

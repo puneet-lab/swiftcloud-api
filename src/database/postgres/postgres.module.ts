@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Song } from 'src/song/dto/song.entity';
+import { Song } from 'src/shared/song/dto/song.entity';
 
 @Module({
   imports: [

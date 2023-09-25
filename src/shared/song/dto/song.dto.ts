@@ -14,7 +14,9 @@ export class SongDto {
   @Field({ description: 'Album where the song is included.' })
   album: string;
 
-  @Field({ description: 'Writers who composed the song.' })
+  @Field({
+    description: 'Writers who composed the song.',
+  })
   writers: string;
 
   @Field({ description: 'Year the song was released.' })

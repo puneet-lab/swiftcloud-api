@@ -1,5 +1,5 @@
 import { Query, Resolver } from '@nestjs/graphql';
-import { SongDto } from './dto/song.dto';
+import { SongDto } from '../../shared/song/dto/song.dto';
 import { SongService } from './song.service';
 
 @Resolver()
