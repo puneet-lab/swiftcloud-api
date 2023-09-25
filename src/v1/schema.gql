@@ -2,10 +2,54 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input PaginatedSongInput {
+  """Current page number."""
+  page: Int! = 1
+
+  """Number of items per page."""
+  pageSize: Int! = 10
+
+  """
+  Array of search criteria, each containing a column and search term. Allows for searching across multiple columns simultaneously. If not provided or empty, no search filtering will be applied.
+  """
+  search: [SongSearchInput] = []
+
+  """
+  Array of sort criteria, each containing a column and sort order (ASC or DESC). Allows for multi-column sorting to organize the data in a precise order. If not provided or empty, the default sort order will be applied.
+  """
+  sort: [SongSortInput] = []
+}
+
+"""A paginated list of songs, including information about the pagination."""
+type PaginatedSongResponse {
+  """The current page number. Starts at 1."""
+  page: Float!
+
+  """
+  The total number of pages available. This is calculated by dividing the total number of songs by the number of songs per page.
+  """
+  pages: Float!
+
+  """The list of songs retrieved for the current page."""
+  songs: [SongDto!]!
+
+  """The total number of songs available across all pages."""
+  total: Float!
+}
+
 type Query {
-  """Retrieve a list of all songs."""
-  getAllSongs: [SongDto!]!
+  """Retrieve paginated songs with the option to search and sort."""
+  getAllSongs(paginatedSongsInput: PaginatedSongInput): PaginatedSongResponse!
   getHelloWorld: String!
+}
+
+"""Columns that can be used for search and sort operations"""
+enum SongColumnTypes {
+  ALBUM
+  ARTIST
+  RELEASE_YEAR
+  SONG_NAME
+  WRITERS
 }
 
 type SongDto {
@@ -26,4 +70,34 @@ type SongDto {
 
   """Writers who composed the song."""
   writers: String!
+}
+
+input SongSearchInput {
+  """
+  Specifies the column in the Songs table to be searched. If omitted, a general search across all searchable columns will be performed.
+  """
+  column: SongColumnTypes
+
+  """
+  The search term to be used for matching entries in the specified column. If the column is omitted, this term will be used for a general search.
+  """
+  term: String
+}
+
+input SongSortInput {
+  """
+  Specifies the column in the Songs table to be used for sorting the results. If omitted, the default sorting column will be used.
+  """
+  column: SongColumnTypes
+
+  """
+  Specifies the order of the sort operation - either Ascending (ASC) or Descending (DESC). If omitted, the default sort order will be used.
+  """
+  order: SortOrderTypes = ASC
+}
+
+"""Sort order enumeration (ASC, DESC)"""
+enum SortOrderTypes {
+  ASC
+  DESC
 }
