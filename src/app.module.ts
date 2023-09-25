@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import developmentConfig from './config/development.config';
 import productionConfig from './config/production.config';
 import stagingConfig from './config/staging.config';
+import { PostgresModule } from './database/postgres/postgres.module';
 import { GqlModule } from './gql/gql.module';
 import { SongModule } from './song/song.module';
 
@@ -25,6 +26,7 @@ const envConfig = configurations[environment];
       load: [envConfig],
       isGlobal: true,
     }),
+    PostgresModule,
   ],
   controllers: [AppController],
   providers: [AppService],
