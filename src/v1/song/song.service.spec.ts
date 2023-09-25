@@ -2,9 +2,10 @@ import { SortOrderTypes } from './../../shared/enums/common.enum';
 import { SongColumnTypes } from './../../shared/enums/song/song.enum';
 import { PaginatedSongInput } from './../../shared/song/dto/paginated-song.input';
 
+import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Song } from '../../shared/song/dto';
+import { Song, SongSearchInput } from '../../shared/song/dto';
 import {
   applySearchCriteria,
   applySortCriteria,
@@ -114,5 +115,33 @@ describe('SongService', () => {
     } catch (error) {
       expect(error.message).toBe('Database error');
     }
+  });
+
+  describe('validateReleaseDate', () => {
+    it('should throw BadRequestException if release year is before 2006', () => {
+      const search: SongSearchInput[] = [
+        {
+          column: SongColumnTypes.RELEASE_YEAR,
+          term: '2005',
+        },
+      ];
+
+      expect(() => service['validateReleaseDate'](search)).toThrow(
+        new BadRequestException(
+          'Invalid query: Songs from the year 2005 are not available as Taylor swift first song came in the Year 2006. Please query for songs released on or after 2006.',
+        ),
+      );
+    });
+
+    it('should not throw an error if release year is 2006 or later', () => {
+      const search: SongSearchInput[] = [
+        {
+          column: SongColumnTypes.RELEASE_YEAR,
+          term: '2006',
+        },
+      ];
+
+      expect(() => service['validateReleaseDate'](search)).not.toThrow();
+    });
   });
 });

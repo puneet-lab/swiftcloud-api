@@ -2,6 +2,22 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+"""Months of the year"""
+enum Month {
+  April
+  August
+  December
+  February
+  January
+  July
+  June
+  March
+  May
+  November
+  October
+  September
+}
+
 input PaginatedSongInput {
   """Current page number."""
   page: Int! = 1
@@ -41,6 +57,22 @@ type Query {
   """Retrieve paginated songs with the option to search and sort."""
   getAllSongs(paginatedSongsInput: PaginatedSongInput): PaginatedSongResponse!
   getHelloWorld: String!
+  getTopSongs(
+    """
+    The maximum number of top songs to retrieve. Must be an integer between 1 and 100. Defaults to 10 if omitted.
+    """
+    limit: Int! = 10
+
+    """
+    The month for which to retrieve top songs. Must be an integer between 1 and 12. If omitted, the behavior depends on the value of the `year` argument.
+    """
+    month: Month
+
+    """
+    The year for which to retrieve top songs. Must be an integer no earlier than 2006 (as Taylor swift first song came in year 2006) and no later than the current year. If omitted, and `month` is also omitted, top songs will be retrieved for all time.
+    """
+    year: Int
+  ): [TopSongDTO!]!
 }
 
 """Columns that can be used for search and sort operations"""
@@ -100,4 +132,27 @@ input SongSortInput {
 enum SortOrderTypes {
   ASC
   DESC
+}
+
+type TopSongDTO {
+  """Album where the song is included."""
+  album: String!
+
+  """Artist who performed the song."""
+  artist: String!
+
+  """Unique identifier for the song."""
+  id: String!
+
+  """Play count for the song"""
+  playCount: Float!
+
+  """Year the song was released."""
+  releaseYear: Float!
+
+  """Title of the song."""
+  songName: String!
+
+  """Writers who composed the song."""
+  writers: String!
 }
