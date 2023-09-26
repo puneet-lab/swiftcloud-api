@@ -69,6 +69,9 @@ export class SongService {
       .select([
         's."songName"',
         's."artist"',
+        's."album"',
+        's."releaseYear"',
+        's."writers"',
         'SUM(p."playCount")::integer as "playCount"',
       ])
       .innerJoin('plays', 'p', 'p."songId" = s.id')
