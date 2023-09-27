@@ -7,4 +7,6 @@ export default () => ({
     password: 'swiftcloud',
     database: 'swiftcloud',
   },
+  testUser: 'michael',
+  secretKey: 'michael',
 });

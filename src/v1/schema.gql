@@ -37,6 +37,23 @@ input PaginatedSongInput {
 }
 
 """A paginated list of songs, including information about the pagination."""
+type PaginatedSongPlayResponse {
+  """The current page number. Starts at 1."""
+  page: Float!
+
+  """
+  The total number of pages available. This is calculated by dividing the total number of songs by the number of songs per page.
+  """
+  pages: Float!
+
+  """The list of songs retrieved for the current page."""
+  songs: [SongPlayCountDTO!]!
+
+  """The total number of songs available across all pages."""
+  total: Float!
+}
+
+"""A paginated list of songs, including information about the pagination."""
 type PaginatedSongResponse {
   """The current page number. Starts at 1."""
   page: Float!
@@ -54,9 +71,27 @@ type PaginatedSongResponse {
 }
 
 type Query {
-  """Retrieve paginated songs with the option to search and sort."""
-  getAllSongs(paginatedSongsInput: PaginatedSongInput): PaginatedSongResponse!
-  getHelloWorld: String!
+  """
+  Retrieves a paginated list of songs with options for search and sort. The response includes song data, total count, current page, and total pages.
+  """
+  getAllSongs(
+    """Pagination, search, and sort options."""
+    paginatedSongsInput: PaginatedSongInput
+  ): PaginatedSongResponse!
+
+  """
+  Retrieve a token for accessing protected user routes. Currently, a test user "michael" is available for obtaining a token. Please use the username "michael" to generate a token.
+  """
+  getToken(
+    """
+    The username of the user, currently only "michael" is available for testing.
+    """
+    username: String!
+  ): String!
+
+  """
+  Retrieves a list of top songs based on play count for a specified month and year, with an option to limit the number of results.
+  """
   getTopSongs(
     """
     The maximum number of top songs to retrieve. Must be an integer between 1 and 100. Defaults to 10 if omitted.
@@ -72,13 +107,41 @@ type Query {
     The year for which to retrieve top songs. Must be an integer no earlier than 2006 (as Taylor swift first song came in year 2006) and no later than the current year. If omitted, and `month` is also omitted, top songs will be retrieved for all time.
     """
     year: Int
-  ): [TopSongDTO!]!
+  ): [SongPlayCountDTO!]!
+
+  """
+  Retrieve paginated songs with the option to search and sort for a user.
+  """
+  getUserSongs(paginatedSongsInput: PaginatedSongInput): PaginatedSongPlayResponse!
+
+  """
+  Retrieves a list of top songs played by the authenticated user based on play count for a specified month and year, with an option to limit the number of results.
+  """
+  getUserTopSongs(
+    """
+    The maximum number of top songs to retrieve. Must be an integer between 1 and 100. Defaults to 10 if omitted.
+    """
+    limit: Int! = 10
+
+    """
+    The month for which to retrieve top songs. Must be an integer between 1 and 12. If omitted, the behavior depends on the value of the `year` argument.
+    """
+    month: Month
+
+    """
+    The year for which to retrieve top songs. Must be an integer no earlier than 2006 (as Taylor swift first song came in year 2006) and no later than the current year. If omitted, and `month` is also omitted, top songs will be retrieved for all time.
+    """
+    year: Int
+  ): [SongPlayCountDTO!]!
 }
 
-"""Columns that can be used for search and sort operations"""
+"""
+Columns that can be used for search and sort operations, "PLAY_COUNT" column is used to sort only
+"""
 enum SongColumnTypes {
   ALBUM
   ARTIST
+  PLAY_COUNT
   RELEASE_YEAR
   SONG_NAME
   WRITERS
@@ -93,6 +156,29 @@ type SongDto {
 
   """Unique identifier for the song."""
   id: String!
+
+  """Year the song was released."""
+  releaseYear: Float!
+
+  """Title of the song."""
+  songName: String!
+
+  """Writers who composed the song."""
+  writers: String!
+}
+
+type SongPlayCountDTO {
+  """Album where the song is included."""
+  album: String!
+
+  """Artist who performed the song."""
+  artist: String!
+
+  """Unique identifier for the song."""
+  id: String!
+
+  """Play count for the song"""
+  playCount: Float
 
   """Year the song was released."""
   releaseYear: Float!
@@ -132,27 +218,4 @@ input SongSortInput {
 enum SortOrderTypes {
   ASC
   DESC
-}
-
-type TopSongDTO {
-  """Album where the song is included."""
-  album: String!
-
-  """Artist who performed the song."""
-  artist: String!
-
-  """Unique identifier for the song."""
-  id: String!
-
-  """Play count for the song"""
-  playCount: Float!
-
-  """Year the song was released."""
-  releaseYear: Float!
-
-  """Title of the song."""
-  songName: String!
-
-  """Writers who composed the song."""
-  writers: String!
 }

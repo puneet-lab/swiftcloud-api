@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { SongPlayCountDTO } from '../../shared/song/dto/song-play-count.dto';
 import { Month } from './../../shared/enums/common.enum';
 import { PaginatedSongInput } from './../../shared/song/dto/paginated-song.input';
 import { PaginatedSongResponse } from './../../shared/song/dto/paginated-song.response';
-import { TopSongDTO } from './../../shared/song/dto/top-songs.response.dto';
 import { SongResolver } from './song.resolver';
 import { SongService } from './song.service';
 
@@ -45,12 +45,6 @@ describe('SongResolver', () => {
     });
   });
 
-  describe('getHelloWorld', () => {
-    it('should return "Hello World"', async () => {
-      expect(await resolver.getHelloWorld()).toBe('Hello World');
-    });
-  });
-
   describe('getTopSongs', () => {
     it('should return top songs', async () => {
       const result = [
@@ -62,7 +56,7 @@ describe('SongResolver', () => {
           songName: 'Beautiful Ghosts',
           album: 'Cats: Highlights from the Motion Picture Soundtrack',
         },
-      ] as TopSongDTO[];
+      ] as SongPlayCountDTO[];
 
       service.getTopSongs = jest.fn().mockResolvedValue(result);
 

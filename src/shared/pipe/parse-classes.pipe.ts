@@ -11,17 +11,19 @@ import { validateOrReject } from 'class-validator';
 @Injectable()
 export class ParseClassesPipe implements PipeTransform {
   async transform(value: any, { metatype }: ArgumentMetadata) {
+    if (value === undefined || value === null) {
+      value = new metatype();
+    }
+
     if (!metatype || !this.toValidate(metatype)) {
       return value;
     }
+
     const object = plainToClass(metatype, value);
     try {
       await validateOrReject(object);
     } catch (errors) {
-      const messages = errors
-        .map((error) => Object.values(error.constraints))
-        .join(', ');
-      throw new BadRequestException(messages);
+      throw new BadRequestException(errors);
     }
     return object;
   }

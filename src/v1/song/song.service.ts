@@ -1,18 +1,20 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
+import { SongColumnTypes } from '../../shared/enums/song/song.enum';
 import {
   PaginatedSongInput,
+  PaginatedSongPlayResponse,
   PaginatedSongResponse,
+  Song,
+  SongPlayCountDTO,
   SongSearchInput,
 } from '../../shared/song/dto';
-import { Song } from '../../shared/song/dto/song.entity';
 import {
   applySearchCriteria,
   applySortCriteria,
 } from '../../shared/song/helper/song.helper';
-import { SongColumnTypes } from './../../shared/enums/song/song.enum';
-import { TopSongDTO } from './../../shared/song/dto/top-songs.response.dto';
 
 @Injectable()
 export class SongService {
@@ -28,9 +30,12 @@ export class SongService {
 
     const skip = (page - 1) * pageSize;
 
-    const queryBuilder = this.songRepository.createQueryBuilder('song');
+    if (search?.length) {
+      this.validateReleaseDate(search);
+      this.validatePlayCountColumn(search);
+    }
 
-    search?.length && this.validateReleaseDate(search);
+    const queryBuilder = this.songRepository.createQueryBuilder('song');
 
     applySearchCriteria(queryBuilder, search);
     applySortCriteria(queryBuilder, sort);
@@ -54,9 +59,9 @@ export class SongService {
     month?: number,
     year?: number,
     limit: number = 10,
-  ): Promise<TopSongDTO[]> {
+  ): Promise<SongPlayCountDTO[]> {
     const queryBuilder = this.songRepository.createQueryBuilder('s');
-    this.buildBaseQuery(queryBuilder);
+    this.buildTopSongsBaseQuery(queryBuilder);
     this.applyDateFilter(queryBuilder, month, year);
     this.applyLimit(queryBuilder, limit);
 
@@ -64,7 +69,73 @@ export class SongService {
     return topSongs;
   }
 
-  private buildBaseQuery(queryBuilder): void {
+  async getUserSongs(
+    paginatedSongsInput: PaginatedSongInput,
+    userId: string,
+  ): Promise<PaginatedSongPlayResponse> {
+    const { page, pageSize, search, sort } = paginatedSongsInput;
+    const skip = (page - 1) * pageSize;
+
+    if (search?.length) {
+      this.validateReleaseDate(search);
+      this.validatePlayCountColumn(search);
+    }
+
+    const queryBuilder = this.createGetUserSongsQueryBuilder(userId);
+
+    applySearchCriteria(queryBuilder, search);
+    applySortCriteria(queryBuilder, sort);
+
+    const total = await this.getTotalCount(queryBuilder);
+
+    const songsWithPlayCount = await this.getSongsWithPlayCount(
+      queryBuilder,
+      skip,
+      pageSize,
+    );
+
+    const pages = Math.ceil(total / pageSize);
+
+    return {
+      songs: songsWithPlayCount,
+      total,
+      page,
+      pages,
+    };
+  }
+
+  async getUserTopSongs(
+    userId: string,
+    month?: number,
+    year?: number,
+    limit: number = 10,
+  ): Promise<SongPlayCountDTO[]> {
+    const queryBuilder = this.createGetUserSongsQueryBuilder(userId);
+    this.applyDateFilter(queryBuilder, month, year);
+    this.applyLimit(queryBuilder, limit);
+
+    const topSongs = await queryBuilder.getRawMany();
+    return topSongs;
+  }
+
+  private createGetUserSongsQueryBuilder(userId: string) {
+    return this.songRepository
+      .createQueryBuilder('s')
+      .select([
+        's."songName"',
+        's."artist"',
+        's."album"',
+        's."writers"',
+        's."releaseYear"',
+        'SUM(p."playCount") as "playCount"',
+      ])
+      .innerJoin('plays', 'p', 'p."songId" = s.id AND p."userId" = :userId', {
+        userId,
+      })
+      .groupBy('s.id');
+  }
+
+  private buildTopSongsBaseQuery(queryBuilder): void {
     queryBuilder
       .select([
         's."songName"',
@@ -75,6 +146,24 @@ export class SongService {
         'SUM(p."playCount")::integer as "playCount"',
       ])
       .innerJoin('plays', 'p', 'p."songId" = s.id')
+      .groupBy('s.id')
+      .orderBy('"playCount"', 'DESC');
+  }
+
+  private createTopUserSongsQueryBuilder(userId: string) {
+    return this.songRepository
+      .createQueryBuilder('s')
+      .select([
+        's."songName"',
+        's."artist"',
+        's."album"',
+        's."writers"',
+        's."releaseYear"',
+        'SUM(p."playCount") as "playCount"',
+      ])
+      .innerJoin('plays', 'p', 'p."songId" = s.id AND p."userId" = :userId', {
+        userId,
+      })
       .groupBy('s.id')
       .orderBy('"playCount"', 'DESC');
   }
@@ -94,6 +183,10 @@ export class SongService {
     queryBuilder.limit(limit);
   }
 
+  private async getTotalCount(queryBuilder: any) {
+    return await queryBuilder.getCount();
+  }
+
   private validateReleaseDate(search: SongSearchInput[]): void {
     for (const { column, term } of search) {
       if (column === SongColumnTypes.RELEASE_YEAR && +term < 2006) {
@@ -102,5 +195,23 @@ export class SongService {
         );
       }
     }
+  }
+
+  private validatePlayCountColumn(search: SongSearchInput[]): void {
+    for (const { column } of search) {
+      if (column === SongColumnTypes.PLAY_COUNT) {
+        throw new BadRequestException(
+          `${column} is only be used for sorting, when play count is available `,
+        );
+      }
+    }
+  }
+
+  private async getSongsWithPlayCount(
+    queryBuilder: any,
+    skip: number,
+    pageSize: number,
+  ) {
+    return await queryBuilder.offset(skip).limit(pageSize).getRawMany();
   }
 }

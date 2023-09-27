@@ -87,7 +87,7 @@ describe('SongService', () => {
       1,
     ]);
 
-    const input = { page: 1, pageSize: 10 };
+    const input = { page: 1, pageSize: 10 } as PaginatedSongInput;
     const result = await service.getAllSongs(input);
 
     expect(result).toEqual({
@@ -106,7 +106,8 @@ describe('SongService', () => {
     );
 
     try {
-      await service.getAllSongs({ page: 1, pageSize: 10 });
+      const input = { page: 1, pageSize: 10 } as PaginatedSongInput;
+      await service.getAllSongs(input);
     } catch (error) {
       expect(error.message).toBe('ECONNREFUSED');
     }
@@ -118,7 +119,8 @@ describe('SongService', () => {
     );
 
     try {
-      await service.getAllSongs({ page: 1, pageSize: 10 });
+      const input = { page: 1, pageSize: 10 } as PaginatedSongInput;
+      await service.getAllSongs(input);
     } catch (error) {
       expect(error.message).toBe('Database error');
     }

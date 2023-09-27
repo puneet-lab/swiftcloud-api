@@ -24,7 +24,7 @@ create-network:
 
 setup:create-network
 	docker run -d --name $(DB_CONTAINER_NAME) --network $(NETWORK_NAME) -p 5432:5432 -e POSTGRES_USER=$(DB_CREDENTIALS) -e POSTGRES_PASSWORD=$(DB_CREDENTIALS) -e POSTGRES_DB=swiftcloud postgres:latest
-	
+
 seed:
 	docker cp seed.sql swiftcloud:/seed.sql
 	docker exec swiftcloud sh -c 'psql -U swiftcloud -d swiftcloud -f /seed.sql > /dev/null'
@@ -54,3 +54,4 @@ st:
 	docker stop $(APP_CONTAINER_NAME) $(DB_CONTAINER_NAME)
 
 stop: st rm
+ 

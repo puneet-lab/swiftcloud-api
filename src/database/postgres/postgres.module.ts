@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Song } from 'src/shared/song/dto/song.entity';
+import { User } from '../..//shared/song/dto/user.entity';
+import { Song } from '../../shared/song/dto/song.entity';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { Song } from 'src/shared/song/dto/song.entity';
         username: configService.get<string>('database.username'),
         password: configService.get<string>('database.password'),
         database: configService.get<string>('database.database'),
-        entities: [Song],
+        entities: [Song, User],
         synchronize: false,
       }),
       inject: [ConfigService],
