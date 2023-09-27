@@ -7,13 +7,7 @@ WORKDIR /usr/src/app
 # Install dependencies
 COPY package*.json ./
 
-
-# Install nodemon globally
-RUN npm install -g nodemon @nestjs/cli
-
-RUN npm i -g @nestjs/cli
-
-RUN npm install
+RUN npm i --force
 
 # Bundle app source
 COPY . .
