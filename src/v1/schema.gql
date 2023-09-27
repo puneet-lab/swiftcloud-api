@@ -72,7 +72,7 @@ type PaginatedSongResponse {
 
 type Query {
   """
-  Retrieves a paginated list of songs with options for search and sort. The response includes song data, total count, current page, and total pages.
+  Retrieves a paginated list of songs with options for search and sort. The response includes song data, total count, current page, and total pages. (for all users)
   """
   getAllSongs(
     """Pagination, search, and sort options."""
@@ -90,7 +90,7 @@ type Query {
   ): String!
 
   """
-  Retrieves a list of top songs based on play count for a specified month and year, with an option to limit the number of results.
+  Retrieves a list of top songs based on play count for a specified month and year, with an option to limit the number of results. (for all users)
   """
   getTopSongs(
     """
@@ -99,7 +99,7 @@ type Query {
     limit: Int! = 10
 
     """
-    The month for which to retrieve top songs. Must be an integer between 1 and 12. If omitted, the behavior depends on the value of the `year` argument.
+    The month for which to retrieve top songs. Must be a month between Jan & dec select using Month enum. If omitted, the behavior depends on the value of the `year` argument.
     """
     month: Month
 
@@ -124,7 +124,7 @@ type Query {
     limit: Int! = 10
 
     """
-    The month for which to retrieve top songs. Must be an integer between 1 and 12. If omitted, the behavior depends on the value of the `year` argument.
+    The month for which to retrieve top songs. Must be a month between Jan & dec select using Month enum. If omitted, the behavior depends on the value of the `year` argument.
     """
     month: Month
 

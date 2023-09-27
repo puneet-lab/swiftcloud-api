@@ -16,7 +16,7 @@ export class SongResolver {
 
   @Query(() => PaginatedSongResponse, {
     description:
-      'Retrieves a paginated list of songs with options for search and sort. The response includes song data, total count, current page, and total pages.',
+      'Retrieves a paginated list of songs with options for search and sort. The response includes song data, total count, current page, and total pages. (for all users)',
   })
   async getAllSongs(
     @Args('paginatedSongsInput', {
@@ -30,7 +30,7 @@ export class SongResolver {
 
   @Query(() => [SongPlayCountDTO], {
     description:
-      'Retrieves a list of top songs based on play count for a specified month and year, with an option to limit the number of results.',
+      'Retrieves a list of top songs based on play count for a specified month and year, with an option to limit the number of results. (for all users)',
   })
   async getTopSongs(
     @Args() topSongsArgs: TopSongsInput,
@@ -62,7 +62,6 @@ export class SongResolver {
     @Args('paginatedSongsInput', { nullable: true })
     paginatedSongsInput: PaginatedSongInput = new PaginatedSongInput(),
   ): Promise<PaginatedSongPlayResponse> {
-    console.log(paginatedSongsInput);
     return await this.songService.getUserSongs(paginatedSongsInput, user.id);
   }
 }

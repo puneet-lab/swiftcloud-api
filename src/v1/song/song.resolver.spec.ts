@@ -1,4 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import {
+  PaginatedSongPlayResponse,
+  TopSongsInput,
+  User,
+} from '../../shared/song/dto';
 import { SongPlayCountDTO } from '../../shared/song/dto/song-play-count.dto';
 import { Month } from './../../shared/enums/common.enum';
 import { PaginatedSongInput } from './../../shared/song/dto/paginated-song.input';
@@ -19,6 +24,8 @@ describe('SongResolver', () => {
           useValue: {
             getAllSongs: jest.fn(),
             getTopSongs: jest.fn(),
+            getUserTopSongs: jest.fn(),
+            getUserSongs: jest.fn(),
           },
         },
       ],
@@ -90,6 +97,50 @@ describe('SongResolver', () => {
       });
 
       expect(service.getTopSongs).toHaveBeenCalledWith(Month.January, 2023, 10);
+    });
+  });
+
+  describe('getUserTopSongs', () => {
+    it('should return user top songs', async () => {
+      const user = new User();
+      user.id = '1bc';
+      const topSongsArgs = new TopSongsInput();
+      const result = [
+        {
+          songName: 'Style',
+          album: '1989',
+          playCount: 100,
+        },
+      ] as SongPlayCountDTO[];
+      service.getUserTopSongs.mockResolvedValue(result);
+
+      expect(await resolver.getUserTopSongs(user, topSongsArgs)).toEqual(
+        result,
+      );
+      expect(service.getUserTopSongs).toHaveBeenCalledWith(
+        user.id,
+        topSongsArgs.month,
+        topSongsArgs.year,
+        topSongsArgs.limit,
+      );
+    });
+  });
+
+  describe('getUserSongs', () => {
+    it('should return paginated songs for a user', async () => {
+      const user = new User();
+      user.id = '1bc';
+      const paginatedSongsInput = new PaginatedSongInput();
+      const paginatedSongPlayResponse = new PaginatedSongPlayResponse();
+      service.getUserSongs.mockResolvedValue(paginatedSongPlayResponse);
+
+      expect(await resolver.getUserSongs(user, paginatedSongsInput)).toEqual(
+        paginatedSongPlayResponse,
+      );
+      expect(service.getUserSongs).toHaveBeenCalledWith(
+        paginatedSongsInput,
+        user.id,
+      );
     });
   });
 });

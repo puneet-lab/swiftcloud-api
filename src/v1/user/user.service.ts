@@ -13,6 +13,9 @@ export class UserService {
   ) {}
 
   async generateToken(username: string): Promise<string> {
+    if (username !== 'michael') {
+      throw new Error('Invalid username, please use test user "michael"');
+    }
     const user = await this.userRepository.findOne({ where: { username } });
     if (!user) {
       throw new Error('User not found');

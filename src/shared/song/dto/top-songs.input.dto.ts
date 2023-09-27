@@ -7,7 +7,7 @@ export class TopSongsInput {
   @Field(() => Month, {
     nullable: true,
     description:
-      'The month for which to retrieve top songs. Must be an integer between 1 and 12. If omitted, the behavior depends on the value of the `year` argument.',
+      'The month for which to retrieve top songs. Must be a month between Jan & dec select using Month enum. If omitted, the behavior depends on the value of the `year` argument.',
   })
   @IsInt({ message: 'Month must be an integer' })
   @Min(1, { message: 'Month must be between 1 and 12' })

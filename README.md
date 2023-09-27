@@ -29,6 +29,9 @@ Follow these steps to clone, setup, and run the project:
 
 ```bash
 git clone https://github.com/puneet-lab/swiftcloud-api.git
+```
+
+```bash
 cd swiftcloud-api
 ```
 
@@ -38,6 +41,9 @@ Execute the following make commands to set up the project. This involves creatin
 
 ```bash
 make setup   # Create Docker network and setup PostgreSQL database container
+```
+
+```bash
 make seed    # Seed the database by creating required objects
 ```
 
