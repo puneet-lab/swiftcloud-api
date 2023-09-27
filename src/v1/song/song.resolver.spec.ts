@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { Month } from './../../shared/enums/common.enum';
 import { PaginatedSongInput } from './../../shared/song/dto/paginated-song.input';
 import { PaginatedSongResponse } from './../../shared/song/dto/paginated-song.response';
+import { TopSongDTO } from './../../shared/song/dto/top-songs.response.dto';
 import { SongResolver } from './song.resolver';
 import { SongService } from './song.service';
 
@@ -16,6 +18,7 @@ describe('SongResolver', () => {
           provide: SongService,
           useValue: {
             getAllSongs: jest.fn(),
+            getTopSongs: jest.fn(),
           },
         },
       ],
@@ -45,6 +48,54 @@ describe('SongResolver', () => {
   describe('getHelloWorld', () => {
     it('should return "Hello World"', async () => {
       expect(await resolver.getHelloWorld()).toBe('Hello World');
+    });
+  });
+
+  describe('getTopSongs', () => {
+    it('should return top songs', async () => {
+      const result = [
+        {
+          songName: 'Style',
+          album: '1989',
+        },
+        {
+          songName: 'Beautiful Ghosts',
+          album: 'Cats: Highlights from the Motion Picture Soundtrack',
+        },
+      ] as TopSongDTO[];
+
+      service.getTopSongs = jest.fn().mockResolvedValue(result);
+
+      expect(
+        await resolver.getTopSongs({
+          month: Month.January,
+          year: 2023,
+          limit: 10,
+        }),
+      ).toEqual(result);
+
+      expect(service.getTopSongs).toHaveBeenCalledWith(Month.January, 2023, 10);
+    });
+
+    it('should handle service errors', async () => {
+      const error = new Error('Service error');
+      service.getTopSongs.mockImplementation(() => {
+        throw error;
+      });
+
+      await expect(
+        resolver.getTopSongs({ month: Month.January, year: 2023, limit: 10 }),
+      ).rejects.toThrow(error);
+    });
+
+    it('should pass arguments to the service correctly', async () => {
+      await resolver.getTopSongs({
+        month: Month.January,
+        year: 2023,
+        limit: 10,
+      });
+
+      expect(service.getTopSongs).toHaveBeenCalledWith(Month.January, 2023, 10);
     });
   });
 });

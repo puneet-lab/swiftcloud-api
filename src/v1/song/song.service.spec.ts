@@ -28,6 +28,13 @@ describe('SongService', () => {
       skip: jest.fn().mockReturnThis(),
       take: jest.fn().mockReturnThis(),
       getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
+      select: jest.fn().mockReturnThis(),
+      innerJoin: jest.fn().mockReturnThis(),
+      groupBy: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      getRawMany: jest.fn().mockResolvedValue([]),
     };
 
     mockRepository = {
@@ -142,6 +149,49 @@ describe('SongService', () => {
       ];
 
       expect(() => service['validateReleaseDate'](search)).not.toThrow();
+    });
+  });
+
+  describe('getTopSongs', () => {
+    it('should call the correct queryBuilder methods', async () => {
+      await service.getTopSongs(8, 2023, 10);
+
+      expect(mockQueryBuilder.select).toHaveBeenCalledWith([
+        's."songName"',
+        's."artist"',
+        's."album"',
+        's."releaseYear"',
+        's."writers"',
+        'SUM(p."playCount")::integer as "playCount"',
+      ]);
+      expect(mockQueryBuilder.innerJoin).toHaveBeenCalledWith(
+        'plays',
+        'p',
+        'p."songId" = s.id',
+      );
+      expect(mockQueryBuilder.groupBy).toHaveBeenCalledWith('s.id');
+      expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith(
+        '"playCount"',
+        'DESC',
+      );
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'p."playMonth" = :month AND p."playYear" = :year',
+        {
+          month: 8,
+          year: 2023,
+        },
+      );
+      expect(mockQueryBuilder.limit).toHaveBeenCalledWith(10);
+      expect(mockQueryBuilder.getRawMany).toHaveBeenCalled();
+    });
+
+    it('should handle year only filter', async () => {
+      await service.getTopSongs(undefined, 2023, 10);
+
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'p."playYear" = :year',
+        { year: 2023 },
+      );
     });
   });
 });
