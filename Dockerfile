@@ -11,6 +11,8 @@ COPY package*.json ./
 # Install nodemon globally
 RUN npm install -g nodemon @nestjs/cli
 
+RUN npm i -g @nestjs/cli
+
 RUN npm install
 
 # Bundle app source
