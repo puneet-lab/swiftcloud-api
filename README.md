@@ -8,6 +8,14 @@ This project is designed to run within Docker containers, facilitating a straigh
 - **Make:** The `make` utility should be installed for executing commands from the Makefile.
 - **Git:** Git is required for cloning the project repository.
 
+## Project Overview
+
+This API and Database have been designed keeping in mind the following considerations:
+
+1. Anticipating a scenario where Taylor Swift might one day sing more than 2 million songs.
+2. Expecting a high number of users which might necessitate a distributed system. Hence, instead of using a data type auto-generated serially, UUID is used.
+3. As the application grows, it has been structured with separate version folders to maintain multiple versions simultaneously, starting with version 1 (v1).
+
 ## Getting Started
 
 Follow these steps to clone, setup, and run the project:
@@ -42,6 +50,12 @@ When you wish to stop running the project, use the following make command to sto
 
 ```bash
 make stop    # Stop running containers
+```
+
+The API will be running at:
+
+```bash
+http://localhost:3000/graphql/v1
 ```
 
 By following the aforementioned steps, you should have a running instance of the SwiftCloud API, encapsulated within Docker containers for easy management and execution.
@@ -143,6 +157,89 @@ Here are some sample queries that you can use with this API to obtain informatio
 }
 ```
 
+### Authentication:
+
+For testing purposes, a test user "michael" has been created. To query user song count or to find which songs a user is playing, you need to generate a token first:
+
+```graphql
+{
+  getToken(username: "michael")
+}
 ```
 
+This will return a token which should be sent in the request header for subsequent requests:
+
+```json
+{
+  "Authorization": "Bearer <token>"
+}
 ```
+
+### Example Queries:
+
+```graphql
+{
+  getUserSongs(
+    paginatedSongsInput: { search: [{ column: PLAY_COUNT, term: "33" }] }
+  ) {
+    songs {
+      songName
+      playCount
+    }
+  }
+}
+
+{
+  getUserTopSongs(month: June, year: 2023) {
+    songName
+    releaseYear
+    playCount
+  }
+}
+```
+
+Further documentation, including parameter types and examples for `getAllSongs` and `getTopSongs`, is available in the GraphQL playground.
+
+This setup enables the return of trending songs and specific user songs, laying the groundwork for features like recommending trending songs and personalized playlists among others.
+
+## Running Tests
+
+Execute the following command to run tests:
+
+```bash
+npm test
+```
+
+### Database Schema
+
+#### 1. **Songs Table**:
+
+- Stores Taylor Swift songs information.
+- Fields:
+  - id
+  - songName
+  - artist
+  - album
+  - description
+  - releaseYear
+
+#### 2. **Users Table**:
+
+- Stores user details.
+- Fields:
+  - id
+  - username
+  - name
+  - createdAt
+  - updatedAt
+
+#### 3. **Plays Table**:
+
+- Maps songID and userID, and stores the playCount based on year and month.
+- Fields:
+  - id
+  - userId
+  - songId
+  - playMonth
+  - playYear
+  - playCount
