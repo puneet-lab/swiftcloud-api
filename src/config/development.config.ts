@@ -1,7 +1,7 @@
 export default () => ({
   database: {
     type: 'postgres',
-    host: 'localhost',
+    host: 'swiftcloud',
     port: 5432,
     username: 'swiftcloud',
     password: 'swiftcloud',
