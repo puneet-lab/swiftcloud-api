@@ -45,3 +45,104 @@ make stop    # Stop running containers
 ```
 
 By following the aforementioned steps, you should have a running instance of the SwiftCloud API, encapsulated within Docker containers for easy management and execution.
+
+````markdown
+## API Queries
+
+Here are some sample queries that you can use with this API to obtain information about songs and albums.
+
+### What songs were written in a given year?
+
+```graphql
+{
+  getAllSongs(
+    paginatedSongsInput: { search: [{ column: RELEASE_YEAR, term: "2020" }] }
+  ) {
+    songs {
+      songName
+      artist
+      releaseYear
+    }
+    total
+    page
+    pages
+  }
+}
+```
+````
+
+### Which songs or albums were most popular last month?
+
+```graphql
+{
+  getTopSongs(year: 2023, month: August) {
+    songName
+    album
+  }
+}
+```
+
+### What about over all months?
+
+```graphql
+{
+  getTopSongs {
+    songName
+    album
+  }
+}
+```
+
+### Searches and sorts?
+
+```graphql
+{
+  getAllSongs(
+    paginatedSongsInput: {
+      search: [
+        { column: SONG_NAME, term: "the" }
+        { column: ARTIST, term: "featur" }
+      ]
+      sort: [{ column: RELEASE_YEAR, order: DESC }]
+    }
+  ) {
+    songs {
+      songName
+      artist
+      releaseYear
+    }
+    total
+    page
+    pages
+  }
+}
+```
+
+### Get details of song by song name
+
+```graphql
+{
+  getAllSongs(
+    paginatedSongsInput: {
+      search: [{ column: SONG_NAME, term: "Exile" }]
+      sort: [{ column: RELEASE_YEAR, order: DESC }]
+    }
+  ) {
+    songs {
+      id
+      songName
+      artist
+      releaseYear
+      writers
+      album
+    }
+    total
+    page
+    pages
+  }
+}
+```
+
+```
+
+```
