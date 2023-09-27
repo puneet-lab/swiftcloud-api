@@ -15,6 +15,11 @@ This API and Database have been designed keeping in mind the following considera
 1. Anticipating a scenario where Taylor Swift might one day sing more than 2 million songs.
 2. Expecting a high number of users which might necessitate a distributed system. Hence, instead of using a data type auto-generated serially, UUID is used.
 3. As the application grows, it has been structured with separate version folders to maintain multiple versions simultaneously, starting with version 1 (v1).
+4. Implementing pagination to ensure the application can efficiently handle and display large datasets by breaking down the data into smaller, manageable chunks, thereby improving the overall user experience and performance.
+
+## Future possible feature
+
+Rate limit,Caching,Logging and monitoring,Localization,Analytics etc
 
 ## Getting Started
 
@@ -159,7 +164,7 @@ Here are some sample queries that you can use with this API to obtain informatio
 
 ### Authentication:
 
-For testing purposes, a test user "michael" has been created. To query user song count or to find which songs a user is playing, you need to generate a token first:
+For testing purposes, a test user "michael" has been created. To query user song play count or to find which songs a user has played, you need to generate a token first:
 
 ```graphql
 {
@@ -180,7 +185,7 @@ This will return a token which should be sent in the request header for subseque
 ```graphql
 {
   getUserSongs(
-    paginatedSongsInput: { search: [{ column: PLAY_COUNT, term: "33" }] }
+    paginatedSongsInput: { sort: [{ column: PLAY_COUNT, order: DESC }] }
   ) {
     songs {
       songName
@@ -190,7 +195,7 @@ This will return a token which should be sent in the request header for subseque
 }
 
 {
-  getUserTopSongs(month: June, year: 2023) {
+  getUserTopSongs(month: June, year: 2023, limit: 50) {
     songName
     releaseYear
     playCount
@@ -198,7 +203,7 @@ This will return a token which should be sent in the request header for subseque
 }
 ```
 
-Further documentation, including parameter types and examples for `getAllSongs` and `getTopSongs`, is available in the GraphQL playground.
+Further documentation, including parameter types and input types are available in the GraphQL playground.
 
 This setup enables the return of trending songs and specific user songs, laying the groundwork for features like recommending trending songs and personalized playlists among others.
 
